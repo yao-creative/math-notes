@@ -6,7 +6,7 @@ Every finite group (G) is isomorphic to a subgroup of the symmetric group on its
 
 More precisely,
 
-$$
+$$  
 G \hookrightarrow S_G \cong S_{|G|}.  
 $$
 
@@ -157,7 +157,7 @@ $$
 Now consider the power set
 
 $$  
-\mathcal P($$n$$).  
+\mathcal P([n]).  
 $$
 
 Every permutation induces
@@ -173,16 +173,16 @@ Notice something remarkable.
 The power set decomposes into
 
 # $$  
-\mathcal P($$n$$)
+\mathcal P([n])
 
 \bigsqcup_{k=0}^{n}  
-\binom{$$n$$}{k},  
+\binom{[n]}{k},  
 $$
 
 where
 
 # $$  
-\binom{$$n$$}{k}
+\binom{[n]}{k}
 
 {\text{$k$-element subsets}}.  
 $$
@@ -213,7 +213,7 @@ This is already the simplest binomial identity.
 Each
 
 $$  
-\binom{$$n$$}{k}  
+\binom{[n]}{k}  
 $$
 
 is a transitive (S_n)-set.
@@ -221,7 +221,7 @@ is a transitive (S_n)-set.
 Linearizing gives
 
 $$  
-\mathbb C$$\binom{$$n$$}{k}$$,  
+\mathbb C$$\binom{[n]}{k}$$,  
 $$
 
 a permutation representation.
@@ -229,10 +229,10 @@ a permutation representation.
 Then
 
 $$  
-\mathbb C$$\mathcal P($$n$$)$$  
+\mathbb C$$\mathcal P([n])$$  
 \cong  
 \bigoplus_{k=0}^{n}  
-\mathbb C$$\binom{$$n$$}{k}$$.  
+\mathbb C$$\binom{[n]}{k}$$.  
 $$
 
 So the decomposition
@@ -274,7 +274,7 @@ $$
 
 Thus
 
-# $$  
+# $$
 \Lambda(\mathbb R^n)
 
 \bigoplus_k  
@@ -308,13 +308,13 @@ each element independently chooses
 
 Thus one has the product species
 
-$$  
+$$
 (\mathbf 1+\mathbf X)^n.  
 $$
 
 Expanding gives
 
-# $$  
+# $$ 
 (\mathbf1+\mathbf X)^n
 
 \sum_k  
