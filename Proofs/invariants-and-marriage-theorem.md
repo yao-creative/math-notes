@@ -10,23 +10,15 @@ Let's formalize this from several viewpoints.
 
 Let
 
-* (S) be the state space.
-* (T \subseteq S \times S) be the transition relation.
-* (I : S \to \mathbf{Prop}) be an invariant.
-* (F : S \to \mathbf{Prop}) denote terminal states.
-* (G : S \to \mathbf{Prop}) denote the desired goal property.
+* $S$ be the state space.
+* $T \subseteq S \times S$ be the transition relation.
+* $I : S \to \mathbf{Prop}$ be an invariant.
+* $F : S \to \mathbf{Prop}$ denote terminal states.
+* $G : S \to \mathbf{Prop}$ denote the desired goal property.
 
 The algorithm is
 
-$$
-s_0
-\to
-s_1
-\to
-\cdots
-\to
-s_n.
-$$
+$s_0 \to s_1 \to \cdots \to s_n.$
 
 ---
 
