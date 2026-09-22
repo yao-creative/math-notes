@@ -1,106 +1,88 @@
-Framing this **hierarchically**: I'll first fix the invariant structure — what sorts/variable/Π/λ/application *mean* independent of syntax — then instantiate that structure across the four languages, since your target languages are simply-typed (no term-level sorts, no genuine dependent Π), so most of the "collapsing" that happens is itself informative.
+Labeling each code line with its **PTS judgment form** $\Gamma \vdash e : A$ and its grammar correspondent ($x$, $\Pi x^{t}.t'$, $\lambda x^{t}.t'$, $t_1\,t_2$) inline as a comment, so the syntactic surface and the calculus term are visually adjacent rather than separated into prose.
 
-## The invariant structure (category-theoretic frame)
-
-In a **cartesian closed category** $\mathcal{C}$, the non-dependent fragment of your grammar corresponds to:
-
-$$
-\Pi x^A.B \;\rightsquigarrow\; B^A \quad(\text{exponential object, when } x \notin \mathrm{FV}(B))
-$$
-
-$$
-\lambda x^A.t \;\rightsquigarrow\; \Lambda(t) : C \to B^A \quad \text{(currying / transpose of } t: C\times A \to B\text{)}
-$$
-
-$$
-t_1\,t_2 \;\rightsquigarrow\; \mathrm{eval}\circ\langle t_1,t_2\rangle, \quad \mathrm{eval}: B^A \times A \to B
-$$
-
-None of TypeScript, Python, OCaml, or Rust have **sorts as terms** — they don't let you write `x : Type : Kind` inside expressions the way a PTS does. So "sorts" degenerate to the *type/kind* stratification each language happens to expose, and I'll flag exactly where that stratification stops.
-
----
-
-## Sorts
-
-| Lang | What plays the role of $s$ | Where it stops |
-|---|---|---|
-| TypeScript | `type` (the universe of types) has no reflective term-level access; but `*` ≈ `unknown`/`any` as a "top sort" informally | No kinds beyond `*`; generics are not terms |
-| Python | Nothing formal — `type` is a runtime *value*, so `type(int)` gives you `type`, and `type(type)` is `type` itself (a genuine fixed point, unusual for a sort!) | No static kind system at all |
-| OCaml | `Type` as a kind exists only in the module/functor layer (`module type`), not the core term language | Core language: one sort, `Type`, unreflected |
-| Rust | Kinds are implicit (`Sized`, `?Sized` distinguish "sorts" of types); no term-level sort | No user-visible sort hierarchy |
-
-## Variable
-
-$$
-\Gamma, x:A \vdash x : A
-$$
+## Variable — $x^{A}$, judgment $\Gamma, x{:}A \vdash x : A$
 
 ```typescript
-// TS
+// x^{number} : number   |   Γ, x:number ⊢ x : number
 const x: number = 5;
 ```
 ```python
-# Python — no static annotation required, but can be given
+# x^{int} : int   |   Γ, x:int ⊢ x : int
 x: int = 5
 ```
 ```ocaml
-(* OCaml *)
+(* x^{int} : int   |   Γ, x:int ⊢ x : int *)
 let x : int = 5
 ```
 ```rust
-// Rust — borrowed, never owned by a "functional component"
+// x^{&i32} : &i32   |   Γ, x:&i32 ⊢ x : &i32   (borrowed, never owned)
 fn use_x(x: &i32) -> i32 { *x }
 ```
 
-## Product ($\Pi x^A.B$ → non-dependent exponential $B^A$, i.e. function type)
+## Product — $\Pi x^{A}.B$, judgment $\Gamma \vdash \Pi x^{A}.B : \mathrm{Type}$
+
+Non-dependent case (the only case these languages express): $x \notin \mathrm{FV}(B)$, so $\Pi x^{A}.B$ degenerates to $B^A = A \to B$.
 
 ```typescript
+// Π x^{number} . string  ≡  number → string   |   Γ ⊢ Arrow : Type
 type Arrow = (x: number) => string;
 ```
 ```python
+# Π x^{int} . str  ≡  int → str   |   Γ ⊢ Arrow : Type
 from typing import Callable
 Arrow = Callable[[int], str]
 ```
 ```ocaml
-(* OCaml's arrow type IS the exponential, directly *)
+(* Π x^{int} . string  ≡  int → string   |   Γ ⊢ arrow : Type *)
 type arrow = int -> string
 ```
 ```rust
-// Rust: function-pointer/closure trait as exponential object B^A
+// Π x^{i32} . String  ≡  i32 → String   |   Γ ⊢ Arrow : Type
 type Arrow<'a> = &'a dyn Fn(i32) -> String;
 ```
 
-## Abstraction ($\lambda x^A.t$)
+## Abstraction — $\lambda x^{A}.t$, judgment $\dfrac{\Gamma, x{:}A \vdash t : B}{\Gamma \vdash \lambda x^{A}.t : \Pi x^{A}.B}$
 
 ```typescript
+// λ x^{number} . x.toString()   |   Γ, x:number ⊢ x.toString() : string  ⇒  Γ ⊢ f : Arrow
 const f: Arrow = (x) => x.toString();
 ```
 ```python
+# λ x^{int} . str(x)   |   Γ, x:int ⊢ str(x) : str  ⇒  Γ ⊢ f : Arrow
 f: Arrow = lambda x: str(x)
 ```
 ```ocaml
+(* λ x^{int} . string_of_int x   |   Γ, x:int ⊢ string_of_int x : string  ⇒  Γ ⊢ f : arrow *)
 let f : arrow = fun x -> string_of_int x
 ```
 ```rust
-// closure borrows its environment, never owns mutable state internally
+// λ x^{&i32} . x.to_string()   |   Γ, x:&i32 ⊢ x.to_string() : String  ⇒  Γ ⊢ f : Arrow
+// closure borrows x; no internal state is owned or initialized
 let f = |x: &i32| -> String { x.to_string() };
 ```
 
-## Application ($t_1\,t_2$, i.e. $\mathrm{eval}\circ\langle t_1,t_2\rangle$)
+## Application — $t_1\,t_2$, judgment $\dfrac{\Gamma \vdash t_1 : \Pi x^{A}.B \quad \Gamma \vdash t_2 : A}{\Gamma \vdash t_1\,t_2 : B[x := t_2]}$
+
+Since these are all non-dependent, $B[x := t_2] = B$ (the substitution is vacuous — $x \notin \mathrm{FV}(B)$).
 
 ```typescript
-f(5) // eval(f, 5)
+// f^{Π x^{number}.string}  applied to  5^{number}   |   Γ ⊢ f(5) : string
+f(5)
 ```
 ```python
+# f^{Π x^{int}.str}  applied to  5^{int}   |   Γ ⊢ f(5) : str
 f(5)
 ```
 ```ocaml
+(* f^{Π x^{int}.string}  applied to  5^{int}   |   Γ ⊢ f 5 : string *)
 f 5
 ```
 ```rust
-f(&5) // borrow passed in, closure never takes ownership of caller state
+// f^{Π x^{&i32}.String}  applied to  &5^{&i32}   |   Γ ⊢ f(&5) : String
+// argument borrowed, not moved — f never takes ownership of caller state
+f(&5)
 ```
 
 ---
 
-**One structural note worth flagging explicitly**, since it bears on your Rust constraint: none of these four languages give you a $\Pi$ that can *depend* on its argument's value at the type level (only OCaml's module functors and, partially, TypeScript's conditional/generic types approximate it). If you want a fifth column showing what genuine dependent $\Pi$ looks like (e.g. in Idris or Agda) as a contrast case, I can add that — it would make the "where the analogy breaks" boundary sharper.
+One thing worth flagging structurally: in every non-Rust case above, $t_2$ (the argument) is passed **by value** into the substitution slot $x := t_2$ — there's no distinction in the calculus between "owning" and "borrowing" $t_2$. Rust's `&` is precisely a *refinement* of the application rule that the vanilla PTS doesn't have a primitive for: it's tracking an affine/linear-ish usage discipline on top of $\Pi$-elimination, not a different elimination rule per se. If you want, I can formalize that refinement explicitly — e.g. as an indexed judgment $\Gamma \vdash t_2 : A \mid \rho$ where $\rho \in \{\mathsf{own}, \mathsf{borrow}, \mathsf{mut}\}$ — since that's the exact axis your Rust preference is constraining.
